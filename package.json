@@ -1,0 +1,19 @@
+{
+  "name": "bouncing-ball",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node_modules/electron/dist/electron ."
+  },
+  "author": "Astellon",
+  "license": "MIT",
+  "dependencies": {
+    "p5": "^0.9.0",
+    "tone": "^13.8.25"
+  },
+  "devDependencies": {
+    "electron": "^6.0.11",
+    "electron-reload": "^1.5.0"
+  }
+}
