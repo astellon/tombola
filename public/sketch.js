@@ -5,7 +5,7 @@ let x
 // radius of ball
 let r = 20.0
 // coefficient of restitution
-let e = 0.6
+let e = 0.8
 // center of box
 let center
 // size of box
@@ -17,6 +17,26 @@ let angle = 0
 // angle increment rate
 let angle_delta = 0.03
 
+// Master volume in decibels
+const volume = -16;
+// The synth we'll use for audio
+let synth;
+
+let notes = [
+  'C',
+  'Db',
+  'D',
+  'Eb',
+  'E',
+  'F',
+  'Gb',
+  'G',
+  'Ab',
+  'A',
+  'Bb',
+  'B'
+]
+
 function setup() {
   createCanvas(windowWidth, windowHeight)
 
@@ -26,12 +46,26 @@ function setup() {
   // vector initialization
   v = createVector(0, 10.0)
   x = createVector(width/2, height/2)
-  g = createVector(0, 0.1)
+  g = createVector(0, 0.5)
 
   // center of box
   center = createVector(width/2, height/2)
 
   lines = center2box(center, size, angle)
+
+    // Make the volume quieter
+    Tone.Master.volume.value = volume;
+
+    // Setup a synth with ToneJS
+    synth = new Tone.Synth({
+      "oscillator" : {
+        "type": 'sine'
+      }
+    });
+  
+    // Wire up our nodes:
+    // synth->master
+    synth.connect(Tone.Master);
 }
 
 function draw() {
@@ -64,7 +98,8 @@ function step() {
   // collision
   for (i = 0; i < 4; i++) {
     if (ishit(p5.Vector.add(x,v), r, lines[i])) {
-      bounce(lines[i])
+      k = bounce(lines[i])
+      play(k, i)
     }
   }
   
@@ -111,6 +146,8 @@ function bounce(l) {
 
     v = p5.Vector.add(v, rov)
   }
+
+  return k
 }
 
 function center2box(center, size, theta) {
@@ -129,6 +166,10 @@ function center2box(center, size, theta) {
   }
 
   return lines
+}
+
+function play(k, i) {
+  synth.triggerAttackRelease(notes[ Math.round((k)*12) % 12 ]+'4', 0.5);
 }
 
 function mousePressed() {
