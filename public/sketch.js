@@ -10,12 +10,14 @@ let e = 0.8
 let center
 // size of box
 let size = 200.0
+// num of lines
+let num = 6
 // lines of box
 let lines
 // angle of box
 let angle = 0
 // angle increment rate
-let angle_delta = 0.03
+let angle_delta = 0.05
 
 // Master volume in decibels
 const volume = -16;
@@ -46,20 +48,38 @@ function setup() {
   // vector initialization
   v = createVector(0, 10.0)
   x = createVector(width/2, height/2)
-  g = createVector(0, 0.5)
+  g = createVector(0, 0.9)
 
   // center of box
   center = createVector(width/2, height/2)
 
-  lines = center2box(center, size, angle)
+  lines = center2box(center, size, angle, num)
 
     // Make the volume quieter
     Tone.Master.volume.value = volume;
 
     // Setup a synth with ToneJS
-    synth = new Tone.Synth({
-      "oscillator" : {
-        "type": 'sine'
+    synth = new Tone.FMSynth ({
+        harmonicity : 1 ,
+        modulationIndex : 10 ,
+        detune : 0 ,
+        oscillator : {
+        type : 'sine'
+      },
+        envelope : {
+        attack : 0.01 ,
+        decay : 0.01 ,
+        sustain : 1 ,
+        release : 0.5
+      },
+        modulation : {
+        type : 'sine'
+      },
+        modulationEnvelope : {
+        attack : 0.01 ,
+        decay : 0.01 ,
+        sustain : 1 ,
+        release : 0.5
       }
     });
   
@@ -82,11 +102,15 @@ function draw() {
   angle += angle_delta
   angle = angle > 2*PI ? angle - 2*PI : angle
   
-  lines = center2box(center, size, angle)
+  lines = center2box(center, size, angle, num)
 
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < num; i++) {
     line(lines[i][0].x, lines[i][0].y, lines[i][1].x, lines[i][1].y)
   }
+
+  // synth
+  //synth.harmonicity.value = 2*x.x/width
+  synth.modulationIndex.value = 10*x.y/height
 
   step()
 }
@@ -96,7 +120,7 @@ function step() {
   x = p5.Vector.add(x, v)
 
   // collision
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < num; i++) {
     if (ishit(p5.Vector.add(x,v), r, lines[i])) {
       k = bounce(lines[i])
       play(k, i)
@@ -150,14 +174,14 @@ function bounce(l) {
   return k
 }
 
-function center2box(center, size, theta) {
+function center2box(center, size, theta, num) {
   size = sqrt(2)*size
 
   lines = []
 
-  for (i = 0; i < 4; i++) {
-    angle1 = (2*i+1)*PI/4+theta
-    angle2 = (2*i+3)*PI/4+theta
+  for (i = 0; i < num; i++) {
+    angle1 = (2*i+1)*PI/num+theta
+    angle2 = (2*i+3)*PI/num+theta
 
     lines[i] = [
       createVector(cos(angle1), sin(angle1)).mult(size).add(center),
